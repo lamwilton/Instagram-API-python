@@ -11,7 +11,7 @@ setup(
     packages=['InstagramAPI'],
     zip_safe=False,
     install_requires=[
-        "requests==2.11.1",
+        "requests==2.20.0",
         "requests-toolbelt==0.7.0",
         "moviepy==0.2.3.2"
     ])
