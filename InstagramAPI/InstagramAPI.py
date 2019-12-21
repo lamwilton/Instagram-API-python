@@ -16,6 +16,9 @@ from datetime import datetime
 import calendar
 import os
 from requests_toolbelt import MultipartEncoder
+import pycurl
+import io
+import re
 
 # Turn off InsecureRequestWarning
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -69,11 +72,13 @@ class InstagramAPI:
         self.isLoggedIn = False
         self.LastResponse = None
         self.s = requests.Session()
+        self.IGDataPath = IGDataPath
 
     def setUser(self, username, password):
         self.username = username
         self.password = password
         self.uuid = self.generateUUID(True)
+        self.phone_id = self.generateUUID(True)
 
     def setProxy(self, proxy=None):
         """
@@ -89,21 +94,25 @@ class InstagramAPI:
 
     def login(self, force=False):
         if (not self.isLoggedIn or force):
-            if (self.SendRequest('si/fetch_headers/?challenge_type=signup&guid=' + self.generateUUID(False), None, True)):
 
-                data = {'phone_id': self.generateUUID(True),
-                        '_csrftoken': self.LastResponse.cookies['csrftoken'],
-                        'username': self.username,
-                        'guid': self.uuid,
-                        'device_id': self.device_id,
-                        'password': self.password,
-                        'login_attempt_count': '0'}
+            if (
+            self.SendRequest('si/fetch_headers/?challenge_type=signup&guid=' + self.generateUUID(False), None, True)):
+                data = {
+                    'country_codes': '[{"country_code":"1","source":["default"]}]',
+                    'phone_id': self.phone_id,
+                    '_csrftoken': self.LastResponseCsrftoken,
+                    'username': self.username,
+                    'guid': self.uuid,
+                    'device_id': self.device_id,
+                    'password': self.password,
+                    'google_tokens': '[]',
+                    'login_attempt_count': '0'}
 
                 if (self.SendRequest('accounts/login/', self.generateSignature(json.dumps(data)), True)):
                     self.isLoggedIn = True
                     self.username_id = self.LastJson["logged_in_user"]["pk"]
                     self.rank_token = "%s_%s" % (self.username_id, self.uuid)
-                    self.token = self.LastResponse.cookies["csrftoken"]
+                    self.token = self.LastResponseCsrftoken
 
                     self.syncFeatures()
                     self.autoCompleteUserList()
@@ -946,46 +955,65 @@ class InstagramAPI:
         return body
 
     def SendRequest(self, endpoint, post=None, login=False):
-        verify = False  # don't show request warning
+        ch = pycurl.Curl()
+        headers = ['Connection:close',
+                   'Accept:*/*',
+                   'Content-type:application/x-www-form-urlencoded; charset=UTF-8',
+                   'Cookie2:$Version=1',
+                   'Accept-Language:en-US',
+                   'User-Agent:' + self.USER_AGENT]
 
-        if (not self.isLoggedIn and not login):
-            raise Exception("Not logged in!\n")
+        ch.setopt(pycurl.URL, self.API_URL + endpoint)
+        ch.setopt(pycurl.USERAGENT, self.USER_AGENT)
+        ch.setopt(pycurl.FOLLOWLOCATION, True)
+        ch.setopt(pycurl.HEADER, False)
+        if headers:
+            ch.setopt(pycurl.HTTPHEADER, headers)
 
-        self.s.headers.update({'Connection': 'close',
-                               'Accept': '*/*',
-                               'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                               'Cookie2': '$Version=1',
-                               'Accept-Language': 'en-US',
-                               'User-Agent': self.USER_AGENT})
+        ch.setopt(pycurl.SSL_VERIFYPEER, False)
+        ch.setopt(pycurl.SSL_VERIFYHOST, False)
 
-        while True:
-            try:
-                if (post is not None):
-                    response = self.s.post(self.API_URL + endpoint, data=post, verify=verify)
-                else:
-                    response = self.s.get(self.API_URL + endpoint, verify=verify)
+        pathCookies = self.IGDataPath + '\\cookies\\'
+
+        if (not os.path.exists(pathCookies)):
+            os.mkdir(pathCookies)
+
+        ch.setopt(pycurl.COOKIEFILE, pathCookies + self.username + '.dat')
+        ch.setopt(pycurl.COOKIEJAR, pathCookies + self.username + '.dat')
+
+        if post:
+            import urllib
+            ch.setopt(pycurl.POST, len(post))
+            ch.setopt(pycurl.POSTFIELDS, post)
+
+        data = io.BytesIO()
+        ch.setopt(ch.WRITEFUNCTION, data.write)
+
+        ch.perform()
+
+        cookies = ch.getinfo(pycurl.INFO_COOKIELIST)
+        for cookie in cookies:
+            if re.search(r'\bcsrftoken\b', cookie):
+                csrftoken = cookie[cookie.find('csrftoken') + 9:].strip();
                 break
-            except Exception as e:
-                print('Except on SendRequest (wait 60 sec and resend): ' + str(e))
-                time.sleep(60)
 
-        if response.status_code == 200:
-            self.LastResponse = response
-            self.LastJson = json.loads(response.text)
+        if (ch.getinfo(pycurl.HTTP_CODE) == 200):
+            self.LastResponse = data.getvalue()
+            self.LastResponseCsrftoken = csrftoken
+            self.LastJson = json.loads(data.getvalue())
+            ch.close()
             return True
+
         else:
-            print("Request return " + str(response.status_code) + " error!")
+            print("Request return " + str(ch.getinfo(pycurl.HTTP_CODE)) + " error!")
             # for debugging
             try:
-                self.LastResponse = response
-                self.LastJson = json.loads(response.text)
+                self.LastResponse = data.getvalue()
+                self.LastJson = json.loads(data.getvalue())
                 print(self.LastJson)
-                if 'error_type' in self.LastJson and self.LastJson['error_type'] == 'sentry_block':
-                    raise SentryBlockException(self.LastJson['message'])
-            except SentryBlockException:
-                raise
             except:
                 pass
+            ch.close()
             return False
 
     def getTotalFollowers(self, usernameId):
@@ -1050,3 +1078,28 @@ class InstagramAPI:
             except KeyError as e:
                 break
         return liked_items
+
+    def getCodeChallengeRequired(self, path, choice=0):
+        username_id = path.partition('/')[2].partition('/')[0]
+
+        self.SendRequest(path, None, True)
+
+        data = {'choice': choice,
+                '_uuid': self.uuid,
+                'guid': self.uuid,
+                'device_id': self.device_id,
+                '_uid': username_id,
+                '_csrftoken': self.LastResponseCsrftoken}
+
+        self.SendRequest(path, self.generateSignature(json.dumps(data)), True)
+
+    def setCodeChallengeRequired(self, path, code):
+        username_id = path.partition('/')[2].partition('/')[0]
+        data = {'security_code': code,
+                '_uuid': self.uuid,
+                'guid': self.uuid,
+                'device_id': self.device_id,
+                '_uid': username_id,
+                '_csrftoken': self.LastResponseCsrftoken}
+
+        self.SendRequest(path, self.generateSignature(json.dumps(data)), True)

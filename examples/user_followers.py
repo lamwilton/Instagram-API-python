@@ -3,7 +3,7 @@
 #
 # Use text editor to edit the script and type in valid Instagram username/password
 
-from InstagramAPI import InstagramAPI
+from InstagramAPI import InstagramAPI, os
 
 
 def getTotalFollowers(api, user_id):
@@ -26,7 +26,8 @@ def getTotalFollowers(api, user_id):
 
 
 if __name__ == "__main__":
-    api = InstagramAPI("username", "password")
+
+    api = InstagramAPI("YOUR_LOGIN", "YOUR_PASSWORD", False, os.path.dirname(os.path.abspath(__file__)))
     api.login()
 
     # user_id = '1461295173'
