@@ -104,10 +104,16 @@ if __name__ == "__main__":
     api.login()
     next_max_id = True
 
-    # Input user ID
-    userId = input("Enter Instagram user ID (leave blank for tombrady): ")
-    if userId == "":
-        userId = 1665557140
+    # Input username and searches for user ID
+    valid = False
+    while not valid:
+        userName = input("Enter Instagram username: ")
+        api.searchUsername(userName)
+        try:
+            userId = api.LastJson.get('user')['pk']
+            valid = True
+        except TypeError:
+            print('User not Found')
     # Get all posts by user
     reader = HashtagReader()
     while next_max_id:
