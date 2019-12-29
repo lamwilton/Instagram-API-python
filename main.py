@@ -18,7 +18,7 @@ class HashtagReader:
         # Reads dictionary file
         with open("dict.txt") as dictFile:
             dictionary = dictFile.readlines()
-            dictionary = [word.rstrip("\n") for word in dictionary]
+            dictionary = filter(None, [word.rstrip("\n") for word in dictionary])   # Remove empty strings
         dictSet = set(dictionary)
 
         # Reads each post and output if found banned hashtags

@@ -1,6 +1,5 @@
 # Banned Hashtag checker (main.py)
-Using this IG API by LevPasha, reads all posts of a user after inputing user ID  
-(Please find your user ID using this website https://codeofaninja.com/tools/find-instagram-user-id).  
+Using this IG API by LevPasha, reads all posts of a user after inputing username  
 Checks and outputs if banned hashtags is found.  
 Also outputs the top 10 frequent hashtags of the user.  
 
@@ -10,13 +9,9 @@ dict.txt contains the list of banned hashtags
 Limitations:  
 The program can only read hashtags from captions of the post but not comments
 
-Sample output for Tom Brady's account:
+Sample output for account tombrady:
 ```
-Enter Instagram user ID (leave blank for tombrady): 
-===========Post code: Bhmj86ZBnG5=============
-{''}
-Found banned hashtags:
-{''}
+Enter Instagram username: tombrady
 ===========Post code: BSO0O6QhD6v=============
 {'humpday'}
 Found banned hashtags:
@@ -25,8 +20,8 @@ Found banned hashtags:
 ========Top 10 Hashtags=========
 LFG 20
 1 4
-LifeReady 4
 GameReady 4
+LifeReady 4
 ROS 4
 tbtimes 4
 LETSGO 3
