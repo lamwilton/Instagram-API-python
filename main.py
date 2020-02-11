@@ -1,5 +1,4 @@
 from InstagramAPI import InstagramAPI, os
-import json
 
 
 class HashtagReader:
@@ -33,7 +32,7 @@ class HashtagReader:
                     print("Found banned hashtags:")
                     print(result)
             except TypeError:
-                _   # Do Nothing
+                pass   # Do Nothing
             self.countHashtags(hashtags)
         print("========All posts successfully checked========")
 
@@ -48,28 +47,6 @@ class HashtagReader:
                 self.hashDict.update({hashtag: 1})
             else:
                 self.hashDict.update({hashtag: self.hashDict[hashtag] + 1})
-
-    def getFirstComment(self) -> str:
-        # TODO Complete this method, struggling
-        """
-        Get First comment of the post
-        :return: First comment text
-        """
-        media_id = self.item['id']
-        has_more_comments = True
-        max_id = ''
-        comments = []
-        while has_more_comments:
-            _ = api.getMediaComments(media_id, max_id=max_id)
-            for c in reversed(api.LastJson['comments']):
-                comments.append(c)
-            has_more_comments = api.LastJson.get('has_more_comments', False)
-
-            if has_more_comments:
-                max_id = json.loads(api.LastJson.get('next_max_id', ''))['server_cursor']
-            if len(comments) >= self.item['comment_count']:
-                has_more_comments = False
-        return ""
 
     def printAll(self):
         """
@@ -89,7 +66,7 @@ class HashtagReader:
         :return:
         """
         print("========Top 10 Hashtags=========")
-        hashtagList = sorted(reader.hashDict, key=reader.hashDict.get, reverse=True)
+        hashtagList = sorted(self.hashDict, key=self.hashDict.get, reverse=True)
         count = 0
         for hashtag in hashtagList:
             print(hashtag, self.hashDict[hashtag])
@@ -98,11 +75,90 @@ class HashtagReader:
                 return
 
 
+class FollowerReader:
+    """
+    Class for reading followers/following
+    """
+    def __init__(self):
+        self.followers = []
+        self.followings = []
+
+    def readFollowers(self):
+        """
+        Reads followers and save list to self.followers
+        :return:
+        """
+        next_max_id = True
+        while next_max_id:
+            if next_max_id is True:
+                next_max_id = ''
+            _ = api.getUserFollowers(usernameId=userId, maxid=next_max_id)
+            entries = api.LastJson.get('users')
+            for entry in entries:
+                self.followers.append(entry['username'])
+            next_max_id = api.LastJson.get('next_max_id', '')
+
+    def readFollowings(self):
+        """
+        Reads followings and save list to self.followings
+        :return:
+        """
+        next_max_id = True
+        while next_max_id:
+            if next_max_id is True:
+                next_max_id = ''
+            _ = api.getUserFollowings(usernameId=userId, maxid=next_max_id)
+            entries = api.LastJson.get('users')
+            for entry in entries:
+                self.followings.append(entry['username'])
+            next_max_id = api.LastJson.get('next_max_id', '')
+
+
+def readHashtags():
+    """
+    Get all posts by user then run the instance methods of reader
+    :return:
+    """
+    next_max_id = True
+    reader = HashtagReader()
+    while next_max_id:
+        if next_max_id is True:
+            next_max_id = ''
+        _ = api.getUserFeed(usernameId=userId, maxid=next_max_id)
+        reader.items.extend(api.LastJson.get('items', []))
+        next_max_id = api.LastJson.get('next_max_id', '')
+    reader.checkBannedTags()
+    reader.printHashtagsDict()
+
+
+def readFollow():
+    """
+    Read followers/followings
+    :return: List of followers/followings
+    """
+    freader = FollowerReader()
+    freader.readFollowers()
+    freader.readFollowings()
+    return freader.followers, freader.followings
+
+
+def findNonFollowers(followers, followings):
+    """
+    Find non followers by set difference
+    :param followers: List of followers
+    :param followings: List of followings
+    :return: Set of non followers
+    """
+    followerset = set(followers)
+    followingset = set(followings)
+    return followingset.difference(followerset)
+
+
 if __name__ == "__main__":
     # Login with test account
-    api = InstagramAPI("YOUR_LOGIN", "YOUR_PASSWORD", False, os.path.dirname(os.path.abspath(__file__)))
+    # TODO: Input IG account username and password
+    api = InstagramAPI("USERNAME", "PASSWORD", False, os.path.dirname(os.path.abspath(__file__)))
     api.login()
-    next_max_id = True
 
     # Input username and searches for user ID
     valid = False
@@ -114,14 +170,9 @@ if __name__ == "__main__":
             valid = True
         except TypeError:
             print('User not Found')
-    # Get all posts by user
-    reader = HashtagReader()
-    while next_max_id:
-        if next_max_id is True:
-            next_max_id = ''
-        _ = api.getUserFeed(usernameId=userId, maxid=next_max_id)
-        reader.items.extend(api.LastJson.get('items', []))
-        next_max_id = api.LastJson.get('next_max_id', '')
 
-    reader.checkBannedTags()
-    reader.printHashtagsDict()
+    # Main functions
+    followers, followings = readFollow()
+    nonfollowers = findNonFollowers(followers, followings)
+    print(nonfollowers)
+    readHashtags()
