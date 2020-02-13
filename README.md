@@ -33,7 +33,16 @@ MetGala 2
 ```  
 
 ## Followers checker (followers.py)  
-Outputs who are you following but is not following you back
+Outputs who are you following but is not following you back  
+Sample output:  
+```
+Enter Instagram username: (Your username)
+Number of followers: 4939
+Number of followings: 1164
+Number of non-followers: 175
+{'miona.flower', 'pietromilillo', 'vardy7', 'miochin218', 'bruisebaby', 'chocomonaca3213', 'saysora_cosplay', 'realmadrid', 'bun_bo_bae', 'tsunsenpai', 'cxpricornium', 'vp', 'kittyy_lyn', 'cmpulisic', 'onesky2high', 'ayana1221', 'sergioramos', 'dzydzydino' 
+# (Output Truncated)
+```
 
 ## Instagram-API-python by LevPasha
 <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=7BMM6JGE73322&lc=US&item_name=GitHub%20donation&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted" title="Support project"><img src="https://img.shields.io/badge/Support%20project-paypal-brightgreen.svg"></a>
