@@ -1,7 +1,9 @@
-# Banned Hashtag checker (main.py)
+## Banned Hashtag checker (main.py)
 Using this IG API by LevPasha, reads all posts of a user after inputing username  
 Checks and outputs if banned hashtags is found.  
 Also outputs the top 10 frequent hashtags of the user.  
+
+*Before use, please install the API according to the instructions below.  
 
 main.py is the Python script for the above  
 dict.txt contains the list of banned hashtags
@@ -28,7 +30,10 @@ LETSGO 3
 TB1K 3
 patsnation 2
 MetGala 2
-```
+```  
+
+## Followers checker (followers.py)  
+Outputs who are you following but is not following you back
 
 ## Instagram-API-python by LevPasha
 <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=7BMM6JGE73322&lc=US&item_name=GitHub%20donation&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted" title="Support project"><img src="https://img.shields.io/badge/Support%20project-paypal-brightgreen.svg"></a>
