@@ -94,7 +94,7 @@ def readHashtags():
 
 if __name__ == "__main__":
     # Login with test account
-    # TODO: Input username and password
+    # TODO : Fill in username/password
     api = InstagramAPI("USERNAME", "PASSWORD", False, os.path.dirname(os.path.abspath(__file__)))
     api.login()
 

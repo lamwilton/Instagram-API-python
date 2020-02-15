@@ -1,4 +1,5 @@
 from InstagramAPI import InstagramAPI, os
+import json
 
 
 class FollowerReader:
@@ -48,7 +49,11 @@ def readFollow():
     freader = FollowerReader()
     freader.readFollowers()
     freader.readFollowings()
-    return freader.followers, freader.followings
+    with open('followers.json', 'r') as infile:
+        prevFollowers = json.load(infile)
+    with open('followers.json', 'w') as outfile:
+        json.dump(freader.followers, outfile)
+    return freader.followers, freader.followings, prevFollowers
 
 
 def findNonFollowers(followers, followings):
@@ -63,9 +68,21 @@ def findNonFollowers(followers, followings):
     return followingset.difference(followerset)
 
 
+def findUnfollowed(followers, prevFollowers):
+    """
+    Find who unfollowed you since last check, as well as new followers
+    :param followers:
+    :param prevFollowers:
+    :return: Set of un-followers, then new followers
+    """
+    followerset = set(followers)
+    prevFollowerset = set(prevFollowers)
+    return prevFollowerset.difference(followerset), followerset.difference(prevFollowerset)
+
+
 if __name__ == "__main__":
     # Login with test account
-    # TODO: Input username and password
+    # TODO : Fill in username/password
     api = InstagramAPI("USERNAME", "PASSWORD", False, os.path.dirname(os.path.abspath(__file__)))
     api.login()
 
@@ -81,6 +98,14 @@ if __name__ == "__main__":
             print('User not Found')
 
     # Main functions
-    followers, followings = readFollow()
+    followers, followings, prevFollowers = readFollow()
     nonfollowers = findNonFollowers(followers, followings)
+    unfollowers, newfollowers = findUnfollowed(followers, prevFollowers)
+    print("Number of followers: " + str(len(followers)))
+    print("Number of followings: " + str(len(followings)))
+    print("Number of un-followers (People unfollowed you since last check): " + str(len(unfollowers)))
+    print(unfollowers)
+    print("Number of new followers: " + str(len(newfollowers)))
+    print(newfollowers)
+    print("Number of non-followers (People who are not following back): " + str(len(nonfollowers)))
     print(nonfollowers)
