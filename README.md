@@ -1,3 +1,22 @@
+## Followers checker (followers.py)  
+### NEW! This is deployed into Public Google Colab  
+Everyone can use it without installing anything!  
+\>>>> Click Here >>>>   
+https://colab.research.google.com/drive/1whB8JOWac2dohuLoc-3TZZNYdcwjSWAc?usp=sharing  
+Instructions:  
+1. Run the !pip install InstagramAPI code block. When finished, clich *Restart Runtime* at the bottom of the output  
+2. Run all code (Ctrl + F9) and enter your username at the bottom of the screen  
+
+Outputs who are you following but is not following you back  
+Sample output:  
+```
+Enter Instagram username: (Your username)
+Number of followers: 4939
+Number of followings: 1164
+Number of non-followers: 175
+{'miona.flower', 'pietromilillo', 'vardy7', 'miochin218', 'bruisebaby', 'chocomonaca3213', 'saysora_cosplay', 'realmadrid', 'bun_bo_bae', 'tsunsenpai', 'cxpricornium', 'vp', 'kittyy_lyn', 'cmpulisic', 'onesky2high', 'ayana1221', 'sergioramos', 'dzydzydino' 
+# (Output Truncated)
+```
 ## Banned Hashtag checker (main.py)
 Using this IG API by LevPasha, reads all posts of a user after inputing username  
 Checks and outputs if banned hashtags is found.  
@@ -31,18 +50,6 @@ TB1K 3
 patsnation 2
 MetGala 2
 ```  
-
-## Followers checker (followers.py)  
-Outputs who are you following but is not following you back  
-Sample output:  
-```
-Enter Instagram username: (Your username)
-Number of followers: 4939
-Number of followings: 1164
-Number of non-followers: 175
-{'miona.flower', 'pietromilillo', 'vardy7', 'miochin218', 'bruisebaby', 'chocomonaca3213', 'saysora_cosplay', 'realmadrid', 'bun_bo_bae', 'tsunsenpai', 'cxpricornium', 'vp', 'kittyy_lyn', 'cmpulisic', 'onesky2high', 'ayana1221', 'sergioramos', 'dzydzydino' 
-# (Output Truncated)
-```
 
 ## Instagram-API-python by LevPasha
 <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=7BMM6JGE73322&lc=US&item_name=GitHub%20donation&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted" title="Support project"><img src="https://img.shields.io/badge/Support%20project-paypal-brightgreen.svg"></a>
