@@ -14,7 +14,7 @@ Enter Instagram username: (Your username)
 Number of followers: 4939
 Number of followings: 1164
 Number of non-followers: 175
-{'miona.flower', 'pietromilillo', 'vardy7', 'miochin218', 'bruisebaby', 'chocomonaca3213', 'saysora_cosplay', 'realmadrid', 'bun_bo_bae', 'tsunsenpai', 'cxpricornium', 'vp', 'kittyy_lyn', 'cmpulisic', 'onesky2high', 'ayana1221', 'sergioramos', 'dzydzydino' 
+{'miona.flower', 'vardy7', 
 # (Output Truncated)
 ```
 ## Banned Hashtag checker (main.py)
